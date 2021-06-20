@@ -42,7 +42,6 @@ namespace NeuralNetworkRealization
         {
             for (int i = 0; i < neurons.Length; i++)
             {
-                double[] d = Weigths.GetDimension(i);
                 neurons[i].CalculateWeightedSum(Weigths.GetDimension(i), inputValues);
             }
 

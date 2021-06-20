@@ -45,6 +45,8 @@ namespace WindowsFormsUI
             this.trainingDataDGW = new System.Windows.Forms.DataGridView();
             this.inp1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.out1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.удалитьСтрокуToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.geneticGB = new System.Windows.Forms.GroupBox();
             this.mutationTB = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -75,6 +77,7 @@ namespace WindowsFormsUI
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.loadToCheckBtn = new System.Windows.Forms.Button();
             this.resultTB = new System.Windows.Forms.RichTextBox();
             this.label11 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
@@ -82,11 +85,13 @@ namespace WindowsFormsUI
             this.amountTasksNUD = new System.Windows.Forms.NumericUpDown();
             this.calculateSolutionBtn = new System.Windows.Forms.Button();
             this.workDGW = new System.Windows.Forms.DataGridView();
+            this.loadDatatoolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.trainingData.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trainingsAmount)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trainingDataDGW)).BeginInit();
+            this.contextMenuStrip1.SuspendLayout();
             this.geneticGB.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.iterationsAmountNUD)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.populationSizeNUD)).BeginInit();
@@ -118,6 +123,7 @@ namespace WindowsFormsUI
             this.файлToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.saveToolStripMenuItem,
             this.loadToolStripMenuItem,
+            this.loadDatatoolStripMenuItem,
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
             this.файлToolStripMenuItem.Name = "файлToolStripMenuItem";
@@ -127,26 +133,26 @@ namespace WindowsFormsUI
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(250, 22);
             this.saveToolStripMenuItem.Text = "Сохранить нейросеть";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // loadToolStripMenuItem
             // 
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
-            this.loadToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(250, 22);
             this.loadToolStripMenuItem.Text = "Открыть нейросеть";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(190, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(247, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(193, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(250, 22);
             this.exitToolStripMenuItem.Text = "Выход";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -237,12 +243,12 @@ namespace WindowsFormsUI
             // trainingDataDGW
             // 
             this.trainingDataDGW.AllowUserToAddRows = false;
-            this.trainingDataDGW.AllowUserToDeleteRows = false;
             this.trainingDataDGW.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.trainingDataDGW.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.trainingDataDGW.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.inp1,
             this.out1});
+            this.trainingDataDGW.ContextMenuStrip = this.contextMenuStrip1;
             this.trainingDataDGW.Location = new System.Drawing.Point(6, 24);
             this.trainingDataDGW.Name = "trainingDataDGW";
             this.trainingDataDGW.Size = new System.Drawing.Size(657, 300);
@@ -257,6 +263,20 @@ namespace WindowsFormsUI
             // 
             this.out1.HeaderText = "Выход 1";
             this.out1.Name = "out1";
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.удалитьСтрокуToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(159, 26);
+            // 
+            // удалитьСтрокуToolStripMenuItem
+            // 
+            this.удалитьСтрокуToolStripMenuItem.Name = "удалитьСтрокуToolStripMenuItem";
+            this.удалитьСтрокуToolStripMenuItem.Size = new System.Drawing.Size(158, 22);
+            this.удалитьСтрокуToolStripMenuItem.Text = "Удалить строку";
+            this.удалитьСтрокуToolStripMenuItem.Click += new System.EventHandler(this.deleteRowToolStripMenuItem_Click);
             // 
             // geneticGB
             // 
@@ -602,6 +622,7 @@ namespace WindowsFormsUI
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.loadToCheckBtn);
             this.tabPage2.Controls.Add(this.resultTB);
             this.tabPage2.Controls.Add(this.label11);
             this.tabPage2.Controls.Add(this.button1);
@@ -615,21 +636,32 @@ namespace WindowsFormsUI
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
             this.tabPage2.Size = new System.Drawing.Size(1079, 554);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Работа с нейронной сетью";
+            this.tabPage2.Text = "Проверка на принадлежность к нормальным формам";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // loadToCheckBtn
+            // 
+            this.loadToCheckBtn.Location = new System.Drawing.Point(190, 7);
+            this.loadToCheckBtn.Name = "loadToCheckBtn";
+            this.loadToCheckBtn.Size = new System.Drawing.Size(175, 23);
+            this.loadToCheckBtn.TabIndex = 9;
+            this.loadToCheckBtn.Text = "Загрузить файл для проверки";
+            this.loadToCheckBtn.UseVisualStyleBackColor = true;
+            this.loadToCheckBtn.Click += new System.EventHandler(this.loadFile_Click);
             // 
             // resultTB
             // 
-            this.resultTB.Location = new System.Drawing.Point(811, 36);
+            this.resultTB.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.resultTB.Location = new System.Drawing.Point(601, 36);
             this.resultTB.Name = "resultTB";
-            this.resultTB.Size = new System.Drawing.Size(262, 480);
+            this.resultTB.Size = new System.Drawing.Size(472, 480);
             this.resultTB.TabIndex = 8;
             this.resultTB.Text = "";
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(808, 12);
+            this.label11.Location = new System.Drawing.Point(601, 12);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(62, 13);
             this.label11.TabIndex = 7;
@@ -648,7 +680,7 @@ namespace WindowsFormsUI
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(191, 13);
+            this.label10.Location = new System.Drawing.Point(371, 12);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(98, 13);
             this.label10.TabIndex = 5;
@@ -656,7 +688,7 @@ namespace WindowsFormsUI
             // 
             // amountTasksNUD
             // 
-            this.amountTasksNUD.Location = new System.Drawing.Point(295, 10);
+            this.amountTasksNUD.Location = new System.Drawing.Point(475, 9);
             this.amountTasksNUD.Minimum = new decimal(new int[] {
             1,
             0,
@@ -678,7 +710,7 @@ namespace WindowsFormsUI
             this.calculateSolutionBtn.Name = "calculateSolutionBtn";
             this.calculateSolutionBtn.Size = new System.Drawing.Size(175, 23);
             this.calculateSolutionBtn.TabIndex = 3;
-            this.calculateSolutionBtn.Text = "Вычислить";
+            this.calculateSolutionBtn.Text = "Проверить";
             this.calculateSolutionBtn.UseVisualStyleBackColor = true;
             this.calculateSolutionBtn.Click += new System.EventHandler(this.calculateSolutionBtn_Click);
             // 
@@ -692,8 +724,15 @@ namespace WindowsFormsUI
             this.workDGW.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.workDGW.Location = new System.Drawing.Point(9, 36);
             this.workDGW.Name = "workDGW";
-            this.workDGW.Size = new System.Drawing.Size(794, 480);
+            this.workDGW.Size = new System.Drawing.Size(586, 480);
             this.workDGW.TabIndex = 2;
+            // 
+            // loadDatatoolStripMenuItem
+            // 
+            this.loadDatatoolStripMenuItem.Name = "loadDatatoolStripMenuItem";
+            this.loadDatatoolStripMenuItem.Size = new System.Drawing.Size(250, 22);
+            this.loadDatatoolStripMenuItem.Text = "Загрузить данные для проверки";
+            this.loadDatatoolStripMenuItem.Click += new System.EventHandler(this.loadDatatoolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -718,6 +757,7 @@ namespace WindowsFormsUI
             this.trainingData.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trainingsAmount)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trainingDataDGW)).EndInit();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.geneticGB.ResumeLayout(false);
             this.geneticGB.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.iterationsAmountNUD)).EndInit();
@@ -794,6 +834,10 @@ namespace WindowsFormsUI
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.RichTextBox resultTB;
         private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem удалитьСтрокуToolStripMenuItem;
+        private System.Windows.Forms.Button loadToCheckBtn;
+        private System.Windows.Forms.ToolStripMenuItem loadDatatoolStripMenuItem;
     }
 }
 

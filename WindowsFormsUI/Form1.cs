@@ -23,15 +23,18 @@ namespace WindowsFormsUI
             InitializeComponent();
             activatorBindingSource.DataSource = ActivatorsList.GetActivators();
             SetRowCount(trainingDataDGW, trainingsAmount);
+            SetRowCount(trainingDataDGW, trainingsAmount);
             model = new Model();
             layersModels = new List<AmountNeuronsInHidenLayersModel>();
             showStatBtn.Enabled = false;
             saveToFileBtn.Enabled = false;
+            loadToCheckBtn.Enabled = false;
         }
 
         private void hidenLayersAmount_ValueChanged(object sender, EventArgs e)
         {
             neuronAmountPanel.Controls.Clear();
+            layersModels.Clear();
             posY = 0;
             for(int i = 0; i < (int)hidenLayersAmount.Value; i++)
             {
@@ -112,6 +115,7 @@ namespace WindowsFormsUI
                 model.TrainNeuralNetwork(trainingInputs, trainingOutputs, eps, (int)populationSizeNUD.Value, (int)iterationsAmountNUD.Value, mutationPropability);
                 showStatBtn.Enabled = true;
                 saveToFileBtn.Enabled = true;
+                loadToCheckBtn.Enabled = true;
 
                 RefreshDGW(workDGW, true);
                 MessageBox.Show("Нейросеть обучена");
@@ -145,9 +149,9 @@ namespace WindowsFormsUI
                 return false;
             }
 
-            if(eps > 0.01 || eps < 0.0001)
+            if(eps > 0.1 || eps < 0.0001)
             {
-                MessageBox.Show("Значение максимальной ошибки должно находиться в диапазоне от 0,0001 до 0,01");
+                MessageBox.Show("Значение максимальной ошибки должно находиться в диапазоне от 0,0001 до 0,1");
                 return false;
             }
 
@@ -165,7 +169,7 @@ namespace WindowsFormsUI
 
             if (!double.TryParse(mutationTB.Text, out mutationPropability))
             {
-                MessageBox.Show("Значение вероятности мутаци1 некорректно");
+                MessageBox.Show("Значение вероятности мутации некорректно");
                 return false;
             }
 
@@ -241,11 +245,13 @@ namespace WindowsFormsUI
         {
             LoadNeuralNetwork();
             showStatBtn.Enabled = false;
+            SetRowCount(workDGW, amountTasksNUD);
         }
 
         private void LoadNeuralNetwork()
         {
             LoadNetwork();
+            loadToCheckBtn.Enabled = true;
         }
 
         private void LoadNetwork()
@@ -340,7 +346,7 @@ namespace WindowsFormsUI
         private void calculateSolutionBtn_Click(object sender, EventArgs e)
         {
             resultTB.Text = string.Empty;
-            for(int i = 0; i < amountTasksNUD.Value; i++)
+            for(int i = 0; i < workDGW.RowCount; i++)
             {
                 double[] vector = new double[model.Inputs];
                 for (int j = 0; j < vector.Length; j++)
@@ -361,14 +367,23 @@ namespace WindowsFormsUI
                     workDGW.Rows[i].Cells[j].Value = solution[j-model.Inputs];
                 }
 
-                var arr = solution.Select(x => Math.Round(x)).ToArray();
+                var arr = solution.Select(x => x < 0.8 ? 0 : 1).ToArray();
                 int result = ProcessResults(arr);
                 string text = result == 0 ? string.Format("Отношение {0} находится в 3-ей нормальной форме\n", i + 1) : 
                     string.Format("Отношение {0} нарушает правила {1} нормальной формы\n", i + 1, result);
+                if (text.Contains("нарушает"))
+                {
+                    resultTB.SelectionColor = Color.Red;
+                }
+                else
+                {
+                    resultTB.SelectionColor = Color.Green;
+                }
                 resultTB.AppendText(text);
             }
         }
-        private int ProcessResults(double[] solution)
+
+        private int ProcessResults(int[] solution)
         {
             int form = 0;
             for(int i = 0; i < solution.Length; i++)
@@ -376,6 +391,7 @@ namespace WindowsFormsUI
                 if(solution[i] == 0)
                 {
                     form = i + 1;
+                    break;
                 }
             }
 
@@ -401,6 +417,49 @@ namespace WindowsFormsUI
         private void MainForm_Load(object sender, EventArgs e)
         {
             SetRowCount(workDGW, amountTasksNUD);
+        }
+
+        private void deleteRowToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int index = trainingDataDGW.CurrentRow.Index;
+            trainingDataDGW.Rows.RemoveAt(index);
+        }
+
+        private void loadFile_Click(object sender, EventArgs e)
+        {
+            LoadDataToCheck();
+        }
+
+        private void LoadDataToCheck()
+        {
+            if (inputsAmount.Value == 5)
+            {
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                openFileDialog.Filter = "text files(*.txt)| *.txt";
+                openFileDialog.Multiselect = true;
+                if (openFileDialog.ShowDialog(this) == DialogResult.OK)
+                {
+                    workDGW.RowCount = 0;
+                    foreach (string file in openFileDialog.FileNames)
+                    {
+                        double[] inputs = model.ProcessFile(file);
+                        workDGW.Rows.Add();
+                        for (int i = 0; i < inputs.Length; i++)
+                        {
+                            workDGW.Rows[workDGW.RowCount - 1].Cells[i].Value = inputs[i];
+                        }
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Данная нейронная сеть не расчитана на проверку отношений на принадлежность к нормальным формам");
+            }
+        }
+
+        private void loadDatatoolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            LoadDataToCheck();
         }
     }
 }

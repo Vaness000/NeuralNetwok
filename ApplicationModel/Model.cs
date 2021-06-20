@@ -113,5 +113,48 @@ namespace ApplicationModel
         {
             File.WriteAllText(path, data);
         }
+
+        public double[] ProcessFile(string path)
+        {
+            double[] result = new double[5];
+            string content = File.ReadAllText(path);
+            string[] lines = content.Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries);
+            double unique = (lines.Distinct().Count() - 3) / (double)(lines.Length - 3);
+            result[0] = unique;
+
+            for (int i = 1; i < lines.Length - 2; i++)
+            {
+                string[] values = lines[i].Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                for (int j = 0; j < values.Length; j++)
+                {
+                    int size = values[j].Split(',').Length;
+                    if (size > result[1])
+                    {
+                        result[1] = size;
+                    }
+                }
+            }
+
+            result[2] = lines[lines.Length - 2].Contains("+") ? 1 : 0;
+
+            result[3] = lines.Last().Split(' ').Where(x => x == "0").Count() - 1;
+
+            int[] lastLine = lines.Last().Split(' ').Select(x => Convert.ToInt32(x)).ToArray();
+            int[] temp = Enumerable.Repeat(1, lastLine.Length).ToArray();
+
+            int amount = 1;
+            int last = 1;
+            for(int i = 0; i < lastLine.Length; i++)
+            {
+                if(lastLine[i] > last)
+                {
+                    last = lastLine[i];
+                    amount++;
+                }
+            }
+
+            result[4] = amount;
+            return result;
+        }
     }
 }

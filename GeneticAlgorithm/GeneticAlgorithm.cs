@@ -1,5 +1,4 @@
-﻿using Manager;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,19 +7,19 @@ namespace GeneticAlgorithmRealization
     public class GeneticAlgorithm
     {
         private List<double> fitneses;
-        private List<Gene> tournamentWinners;
-        private int amountAllelsInGene;
+        private List<Chromosome> tournamentWinners;
+        private int geneLength;
         private int populationAmount;
         private double eps;
         private bool hasSolution = false;
         private long iterations = 0;
         private long maxIterations = 0;
         private double mutationPropability;
-        private Random random = new Random(2281337);
+        private Random random = new Random();
 
         public Dictionary<long, double> Statistic { get; private set; } = new Dictionary<long, double>();
         public double[] Solution { get; private set; }
-        public List<Gene> Population { get; private set; }
+        public List<Chromosome> Population { get; private set; }
         public bool HasSolution
         {
             get
@@ -32,7 +31,7 @@ namespace GeneticAlgorithmRealization
         public GeneticAlgorithm(int amountAllels, int populationAmount, double eps, long maxIterations, double mutationPropability)
         {
             fitneses = new List<double>();
-            amountAllelsInGene = amountAllels;
+            geneLength = amountAllels;
             this.populationAmount = populationAmount;
             GenerateInitialPopulation(populationAmount);
             this.eps = eps;
@@ -42,26 +41,26 @@ namespace GeneticAlgorithmRealization
 
         public void GenerateInitialPopulation(int populationAmount)
         {
-            //Random rnd = new Random();
-            Population = new List<Gene>(populationAmount);
+            Population = new List<Chromosome>(populationAmount);
             for(int i = 0; i < populationAmount; i++)
             {
-                double[] allels = new double[amountAllelsInGene];
-                for(int j = 0; j < amountAllelsInGene; j++)
+                double[] allels = new double[geneLength];
+                for(int j = 0; j < geneLength; j++)
                 {
                     allels[j] = -1 + random.NextDouble() * 2;
                 }
 
-                Population.Add(new Gene(allels));
+                Population.Add(new Chromosome(allels));
             }
         }
 
         public void MakeGeneration()
         {
-            
+            double avg = Population.Average(x => x.Fitness);
+            fitneses.Add(avg);
             if(iterations % 50 == 0)
             {
-                Statistic.Add(iterations, Population.Average(x => x.Fitness));
+                Statistic.Add(iterations, avg);
             }
             
             iterations++;
@@ -78,42 +77,42 @@ namespace GeneticAlgorithmRealization
 
         private void CheckSolutions()
         {
-            List<Gene> solutions = new List<Gene>();
-            foreach(var gene in Population)
+            List<Chromosome> solutions = new List<Chromosome>();
+            foreach(var cromosome in Population)
             {
-                if(gene.Fitness < eps)
+                if(cromosome.Fitness < eps)
                 {
-                    solutions.Add(gene);
+                    solutions.Add(cromosome);
                 }
             }
 
             if (solutions.Count > 0)
             {
-                Solution = solutions.OrderBy(x => x.Fitness).First().Allels;
+                Solution = solutions.OrderBy(x => x.Fitness).First().Genes;
                 hasSolution = true;
             }
 
-            if(!hasSolution && iterations == maxIterations)
+            if(iterations == maxIterations)
             {
+                Solution = Population.OrderBy(x => x.Fitness).First().Genes;
                 hasSolution = true;
-                Solution = Population.OrderBy(x => x.Fitness).First().Allels;
             }
         }
 
         private void Tournament()
         {
-            tournamentWinners = new List<Gene>();
+            tournamentWinners = new List<Chromosome>();
             while(tournamentWinners.Count != populationAmount)
             {
-                Gene gene = GetWinner();
-                tournamentWinners.Add(gene);
+                Chromosome cromosome = GetWinner();
+                tournamentWinners.Add(cromosome);
             }
         }
 
-        private Gene GetWinner()//разбить на подгруппы нормально
+        private Chromosome GetWinner()
         {
-            List<Gene> genes = new List<Gene>();
-            for(int i = 0; i < 3; i++)
+            List<Chromosome> genes = new List<Chromosome>();
+            for(int i = 0; i < 2; i++)
             {
                 int element = random.Next(0, populationAmount);
                 genes.Add(Population[element]);
@@ -125,8 +124,8 @@ namespace GeneticAlgorithmRealization
 
         private void Crossing()
         {
-            List<Gene> firstParents = new List<Gene>();
-            List<Gene> secondParents = new List<Gene>();
+            List<Chromosome> firstParents = new List<Chromosome>();
+            List<Chromosome> secondParents = new List<Chromosome>();
 
             for(int i = 0; i < populationAmount; i++)
             {
@@ -144,10 +143,10 @@ namespace GeneticAlgorithmRealization
             Population.Clear();
             for(int i = 0; i < crossingAmount; i++)
             {
-                int crossingPoint = random.Next(0, amountAllelsInGene);
-                double[] firstChildrenAllels = SwipeAllels(firstParents[i], secondParents[i], crossingPoint, out double[] secondChildrenAllels);
-                Population.Add(new Gene(firstChildrenAllels));
-                Population.Add(new Gene(secondChildrenAllels));
+                int crossingPoint = random.Next(1, geneLength - 1);
+                double[] firstChildrenAllels = SwipeAllels(firstParents[i], secondParents[i], out double[] secondChildrenAllels);
+                Population.Add(new Chromosome(firstChildrenAllels));
+                Population.Add(new Chromosome(secondChildrenAllels));
             }
 
             if(Population.Count != populationAmount)
@@ -156,23 +155,23 @@ namespace GeneticAlgorithmRealization
                 Population.Add(tournamentWinners[index]);
             }
         }
-
-        private double[] SwipeAllels(Gene firsParent, Gene secondParent, int crossingPoint, out double[] secondChildrenAllels)
+        private double[] SwipeAllels(Chromosome firsParent, Chromosome secondParent, out double[] secondChildrenAllels)
         {
-            double[] firstChildrenAllels = new double[amountAllelsInGene];
-            secondChildrenAllels = new double[amountAllelsInGene];
+            double[] firstChildrenAllels = new double[geneLength];
+            secondChildrenAllels = new double[geneLength];
+            int isFirst = random.Next(0, 1);
 
-            for(int i = 0; i < amountAllelsInGene; i++)
+            for (int i = 0; i < geneLength; i++)
             {
-                if(i < crossingPoint)
+                if (isFirst == 0)
                 {
-                    firstChildrenAllels[i] = firsParent.Allels[i];
-                    secondChildrenAllels[i] = secondParent.Allels[i];
+                    firstChildrenAllels[i] = firsParent.Genes[i];
+                    secondChildrenAllels[i] = secondParent.Genes[i];
                 }
                 else
                 {
-                    firstChildrenAllels[i] = secondParent.Allels[i];
-                    secondChildrenAllels[i] = firsParent.Allels[i];
+                    firstChildrenAllels[i] = secondParent.Genes[i];
+                    secondChildrenAllels[i] = firsParent.Genes[i];
                 }
             }
 
@@ -181,12 +180,12 @@ namespace GeneticAlgorithmRealization
 
         private void Mutation()
         {
-            foreach(Gene gene in Population)
+            foreach(Chromosome cromosome in Population)
             {
                 if(random.NextDouble() < mutationPropability)
                 {
-                    int mutationPosition = random.Next(0, amountAllelsInGene);
-                    gene.Allels[mutationPosition] += (-0.3 + random.NextDouble() * 0.6);
+                    int mutationPosition = random.Next(0, geneLength);
+                    cromosome.Genes[mutationPosition] += (-0.3 + random.NextDouble() * 0.6);
                 }
             }
         }

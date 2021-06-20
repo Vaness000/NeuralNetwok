@@ -32,7 +32,7 @@ namespace NeuralNetworkRealization
 
         public NeuralNetwork(int inputNeuronsAmount, int[] neuronsInLayers, Manager.Activator activator)//
         {
-            Random random = new Random(2281337);
+            Random random = new Random();
             layers = new Layer[neuronsInLayers.Length];
             layers[0] = new Layer(neuronsInLayers[0], inputNeuronsAmount, activator.ActivationFunc, random);
             for(int i = 1; i < neuronsInLayers.Length; i++)
@@ -105,8 +105,8 @@ namespace NeuralNetworkRealization
 
         public void Train(List<double[]> inputValues, List<double[]> solutions, double eps, int populationAmount, int maxIterations, double mutationPropability)
         {
-            int allelsAmount = GetChromosomeLength();
-            GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(allelsAmount, populationAmount, eps, maxIterations, mutationPropability);
+            int genesAmount = GetChromosomeLength();
+            GeneticAlgorithm geneticAlgorithm = new GeneticAlgorithm(genesAmount, populationAmount, eps, maxIterations, mutationPropability);
             List<double[]> currentSolutions = new List<double[]>();
 
             while (!geneticAlgorithm.HasSolution)
@@ -114,7 +114,7 @@ namespace NeuralNetworkRealization
                 amount++;
                 for (int j = 0; j < geneticAlgorithm.Population.Count; j++)
                 {
-                    SetWeightsFromChromosome(geneticAlgorithm.Population[j].Allels);
+                    SetWeightsFromChromosome(geneticAlgorithm.Population[j].Genes);
                     currentSolutions.Clear();
 
                     for (int i = 0; i < inputValues.Count; i++)
